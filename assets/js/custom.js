@@ -595,11 +595,14 @@
 
       headerId.addClass("stuck");
 
+      $('#logo').css('width','33%');
+
     } else {
 
       headerId.removeClass("stuck");
 
       headerId.addClass("not-stuck");
+      $('#logo').css('width','auto');
 
     }
 
@@ -1267,6 +1270,7 @@
     masonry: {
 
       columnWidth: '.grid-sizer'
+      //itemSelector: '.item'
 
     }
 
