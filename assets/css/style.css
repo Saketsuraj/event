@@ -5937,12 +5937,12 @@ button {
 ==================================================================================================== */
 .news-update-section .faq-accordion {
   width: 100%;
-  display: table;
+ /* display: table;*/
 }
 .news-update-section .faq-accordion .card {
   width: 100%;
   border: none;
-  display: table;
+  display: inline-block;
   position: relative;
   border-radius: 0px;
 }
@@ -5950,7 +5950,7 @@ button {
   width: 100%;
   padding: 0px;
   border: none;
-  display: table;
+  /*display: table;*/
   background: none;
   margin-bottom: 0;
   border-radius: 0px;
@@ -5969,6 +5969,7 @@ button {
   background-color: #ffffff;
   border-left: 3px solid transparent;
   border-bottom: 1px solid #f0f0f0;
+  white-space:normal;
 }
 .news-update-section .faq-accordion .card .card-header .btn span {
   margin-right: 5px;
@@ -5998,6 +5999,7 @@ button {
   background-color: #f7f7f7;
   border-left: 3px solid #ffbe30;
   border-bottom: 1px solid #ffffff;
+  white-space:normal;
 }
 .news-update-section
   .faq-accordion
