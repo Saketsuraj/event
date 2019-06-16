@@ -202,12 +202,12 @@
                   <div class="countdown-timer mb-50">
                     <ul class="countdown-list" data-countdown="2019/01/01"></ul>
                   </div>
-                  <span class="date">26 december 2018</span>
+                  <span class="date">Loading...</span>
                   <h1 class="title-text">
-                    AMSTERDAM
+                    
                   </h1>
-                  <strong class="bold-text">PHP CONFERENCE</strong>
-                  <a href="event-details.html" class="details-btn"
+                  <strong class="bold-text"></strong>
+                  <a href="event-details.html" target="_blank" class="details-btn"
                     >event details</a
                   >
                 </div>
@@ -232,10 +232,10 @@
                   </div>
                   <span class="date">26 december 2018</span>
                   <h1 class="title-text">
-                    AMSTERDAM
+                    
                   </h1>
-                  <strong class="bold-text">PHP CONFERENCE</strong>
-                  <a href="#!" class="details-btn">event details</a>
+                  <strong class="bold-text"></strong>
+                  <a href="#!" target="_blank" class="details-btn">event details</a>
                 </div>
               </div>
               <!-- slider-content - end -->
@@ -256,12 +256,12 @@
                   <div class="countdown-timer mb-50">
                     <ul class="countdown-list" data-countdown="2019/01/01"></ul>
                   </div>
-                  <span class="date">26 december 2018</span>
+                  <span class="date">Loading...</span>
                   <h1 class="title-text">
-                    AMSTERDAM
+                    
                   </h1>
-                  <strong class="bold-text">CONFERENCE</strong>
-                  <a href="#!" class="details-btn">event details</a>
+                  <strong class="bold-text"></strong>
+                  <a href="#!" target="_blank" class="details-btn">event details</a>
                 </div>
               </div>
               <!-- slider-content - end -->
@@ -809,7 +809,7 @@
               <div class="event-tab-menu clearfix">
                 <ul class="nav">
                   <li>
-                    <a data-toggle="tab" href="#conference-event">
+                    <a class="active" data-toggle="tab" href="#conference-event">
                       <strong>
                         <i class="fas fa-heart"></i> Dating</strong
                       >
@@ -825,7 +825,7 @@
                     </a>
                   </li>
                   <li>
-                    <a class="active" data-toggle="tab" href="#musical-event">
+                    <a data-toggle="tab" href="#musical-event">
                       <strong> <i class="fas fa-arrow-right"></i> Friending</strong>
                       event
                     </a>
@@ -848,7 +848,7 @@
         <!-- tab-content - start -->
         <div class="tab-content">
           <!-- conference-event - start -->
-          <div id="conference-event" class="tab-pane fade">
+          <div id="conference-event" class="tab-pane in active show fade">
             <div id="event-list" class="row">
 
 
@@ -1378,7 +1378,27 @@
 				"url": "assets/images/gallery/8.image.jpeg",
 				"width": 1600,
 				"height": 900
-			}
+      },
+      {
+        url: "assets/photos/new/n1.jpeg",
+        width: 1600,
+        height: 900
+      },
+      {
+        url: "assets/photos/new/n2.jpeg",
+        width: 1600,
+        height: 900
+      },
+      {
+        url: "assets/photos/new/n3.jpeg",
+        width: 1600,
+        height: 900
+      },
+      {
+        url: "assets/photos/new/n4.jpeg",
+        width: 1600,
+        height: 900
+      }
 		];
 
     $(document).ready(function(){
@@ -1415,22 +1435,52 @@
 					date = moment(date).format('hh:mma');
 					return date;
 				}
+
+        function timerset(upcomingEventDate){
+          $('.countdown-list').countdown(upcomingEventDate, function(event) {
+            // var totalHours = event.offset.totalDays * 24 + event.offset.hours;
+            
+            // console.log(event.strftime(totalHours + ':%M:%S'));
+          });
+        }
+
 				$.ajax({
 					url: 'api/getevents.php',
 					type: 'GET',
 					dataType: 'json',
 					success: function(as){
-            var list = "";
+            var list = "", eventCount = 0;
             for(var i = 0; i < as.events.length; i++){
-              list += '<div class="col-lg-4 col-md-6 col-sm-12"><div class="event-item2 clearfix"><div class="event-image">';
-              list += '<div class="post-date"><span class="date">'+extractDay(as.events[i].start.local)+'</span><small class="month">'+extractMonth(as.events[i].start.local)+'</small></div><img src="'+as.events[i].logo.url+'" alt="Image_not_found"/>';
-              list += '</div><div class="event-content"><div class="event-title mb-15"><h3 class="title">'+as.events[i].name.text+'</h3>';
-              list += '</div><div class="event-post-meta ul-li-block mb-30">';
-              list += '<ul><li><span class="icon"><i class="far fa-clock"></i></span>Start '+extractTime(as.events[i].start.local)+'</li>';
-              list += '</ul></div><a href="'+as.events[i].url+'" target="_blank" class="tickets-details-btn">tickets & details';
-              list += '</a></div></div></div>';                 
+              var isCurrDateBefore = moment().isBefore(moment(as.events[i].start.local));
+              if(isCurrDateBefore){
+                eventCount++;
+                if(eventCount <= 6){
+                  list += '<div class="col-lg-4 col-md-6 col-sm-12"><div class="event-item2 clearfix"><div class="event-image">';
+                  list += '<div class="post-date"><span class="date">'+extractDay(as.events[i].start.local)+'</span><small class="month">'+extractMonth(as.events[i].start.local)+'</small></div><img src="'+as.events[i].logo.url+'" alt="Image_not_found"/>';
+                  list += '</div><div class="event-content"><div class="event-title mb-15"><h3 class="title">'+as.events[i].name.text+'</h3>';
+                  list += '</div><div class="event-post-meta ul-li-block mb-30">';
+                  list += '<ul><li><span class="icon"><i class="far fa-clock"></i></span>Start '+extractTime(as.events[i].start.local)+'</li>';
+                  list += '</ul></div><a href="'+as.events[i].url+'" target="_blank" class="tickets-details-btn">tickets & details';
+                  list += '</a></div></div></div>';
+                }
+                else if(eventCount > 6){
+                  break;
+                }
+              }
+                             
             }
-            $('#event-list').html(list);            
+            $('#event-list').html(list);     
+
+            for(var i = 0; i < as.events.length; i++){
+              var isCurrDateBefore = moment().isBefore(moment(as.events[i].start.local));
+              if(isCurrDateBefore){
+                var timerDateFormat = moment(as.events[i].start.local).format('YYYY/MM/DD');
+                $('.slider-content .date').html(moment(as.events[i].start.local).format('D MMMM YYYY'));
+                $('.details-btn').attr('href', as.events[i].url);
+                timerset(timerDateFormat);
+                break;
+              }
+            }
           }
         });
     });

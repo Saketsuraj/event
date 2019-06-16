@@ -8747,7 +8747,8 @@ button {
 }
 
 .event-section .sidebar-section .spacial-event-wrapper .overlay-black {
-  padding: 50px 25px;
+  padding: 145px 25px;
+  background: none;
 }
 
 .event-section .sidebar-section .spacial-event-wrapper .title-large {
