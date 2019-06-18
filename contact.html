@@ -625,6 +625,7 @@
                     $("#sub-msg").html(as.message);
                     $("#sub-title").html("Successfully sent");
                   } else if (!as.status) {
+                    $("#contactModal").modal("show");
                     $("#sub-msg").html(as.message);
                     $("#sub-title").html("Failed");
                   }
