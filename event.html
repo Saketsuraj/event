@@ -231,7 +231,7 @@
           <!-- search-form - start -->
           <div class="col-lg-8 col-md-12 col-sm-12">
             <div class="search-form form-wrapper">
-              <form action="#!">
+              <form>
                 <ul>
                   <li>
                     <span class="title">event keyword</span>
@@ -245,11 +245,11 @@
                   <li>
                     <span class="title">event category</span>
                     <select id="event-category-select">
-                      <option selected="">Dating</option>
+                      <option>Loading...</option>        
                     </select>
                   </li>
                   <li>
-                    <button type="submit" class="submit-btn">
+                    <button id="search-event-btn" type="button" class="submit-btn">
                       search event now
                     </button>
                   </li>
@@ -363,10 +363,10 @@
                   <li>
                     <label for="year-select">Years:</label>
                     <select id="year-select">
-                      <option>2018</option>
-                      <option selected="" value="1">2019</option>
-                      <option value="2">2020</option>
-                      <option value="3">2021</option>
+                      <option value="2018">2018</option>
+                      <option selected="" value="2019">2019</option>
+                      <option value="2020">2020</option>
+                      <option value="2021">2021</option>
                     </select>
                   </li>
                   <li>
@@ -723,16 +723,18 @@
       $(document).ready(function() {
 
 				var allMonths = moment.months(), monthList = "";
+        var eventData = [], categoryArr = [];
 				
 				for(var i = 0; i < allMonths.length; i++){
 					
 					if((i+1) === moment().month()+1){
-						monthList += '<option selected value="'+(i+1)+'">'+allMonths[i]+'</option>';
+						monthList += '<option selected value="'+allMonths[i]+'">'+allMonths[i]+'</option>';
 					}
 					else{
-						monthList += '<option value="'+(i+1)+'">'+allMonths[i]+'</option>';
+						monthList += '<option value="'+allMonths[i]+'">'+allMonths[i]+'</option>';
 					}
 				}
+        monthList += '<option value="all">All</option>';
 				$('#munth-select').html(monthList);
 
 
@@ -760,8 +762,8 @@
           return date;
         }
 
-        function extractMonth(date) {
-          date = moment(date).format("MMM");
+        function extractMonth(date, format) {
+          date = moment(date).format(format);
           return date;
         }
 
@@ -769,7 +771,164 @@
           date = moment(date).format("hh:mma");
           return date;
         }
-        var eventData = [];
+
+        function extractYear(date){
+          date = moment(date).format("YYYY");
+          return date;
+        }
+
+        function isNotEmpty(object) { 
+          for(var i in object) { return true; } 
+          return false; 
+        }
+
+        function getUnique(array){
+          var uniqueArray = [];
+          
+          // Loop through array values
+          for(var value of array){
+              if(uniqueArray.indexOf(value) === -1){
+                  uniqueArray.push(value);
+              }
+          }
+          return uniqueArray;
+        }
+
+        $('#munth-select, #year-select').change(function(){
+          var listType = "",
+              gridType = "", eventFlag = false;
+          if(isNotEmpty(eventData)){
+            for (var i = 0; i < eventData.events.length; i++) {
+                var currMonth = extractMonth(eventData.events[i].start.local, "MMMM"), currYear = extractYear(eventData.events[i].start.local);
+                if((currMonth === $('#munth-select').val()) && (currYear === $('#year-select').val())){
+                  //holding data for list type
+                  listType +=
+                    '<div class="event-list-item clearfix"><div class="event-image"><div class="post-date">';
+                  listType +=
+                    '<span class="date">' +
+                    extractDay(eventData.events[i].start.local) +
+                    '</span><br><small class="month">' +
+                    extractMonth(eventData.events[i].start.local, "MMM") +
+                    '</small></div><img src="' +
+                    eventData.events[i].logo.url +
+                    '" alt="Image_not_found">';
+                  listType +=
+                    '</div><div class="event-content"><div class="event-title mb-15"><h3 class="title">';
+                  listType +=
+                    "<strong>" + eventData.events[i].name.text + "</strong></h3>";
+                  listType +=
+                    '</div><p class="discription-text mb-30">' +
+                    text_truncate(
+                      removeLineBreaks(eventData.events[i].description.text),
+                      150
+                    ) +
+                    "</p>";
+                  listType += '<div class="event-info-list ul-li clearfix"><ul>';
+                  listType +=
+                    '<li><a href="' +
+                      eventData.events[i].url +
+                    '" target="_blank" class="tickets-details-btn">tickets & details</a></li></ul>';
+                  listType += "</div></div></div>";
+
+                  //holding data for grid type
+                  gridType +=
+                    '<div class="col-lg-6 col-md-6 col-sm-12"><div class="event-grid-item"><div class="event-image">';
+                  gridType +=
+                    '<div class="post-date"><span class="date">' +
+                    extractDay(eventData.events[i].start.local) +
+                    '</span><small class="month">' +
+                    extractMonth(eventData.events[i].start.local, "MMM") +
+                    "</small></div>";
+                  gridType +=
+                    '<img src="' +
+                    eventData.events[i].logo.url +
+                    '" alt="Image_not_found"></div><div class="event-content">';
+                  gridType +=
+                    '<div class="event-title mb-30"><h3 class="title">' +
+                      eventData.events[i].name.text +
+                    "</h3></div>";
+                  gridType += '<div class="event-post-meta ul-li-block mb-30"><ul>';
+                  gridType +=
+                    '<li><span class="icon"><i class="far fa-clock"></i></span>Start ' +
+                    extractTime(eventData.events[i].start.local) +
+                    "</li>";
+                  gridType += "</ul></div>";
+                  gridType +=
+                    '<a href="' +
+                    eventData.events[i].url +
+                    '" target="_blank" class="tickets-details-btn">tickets & details</a></div></div></div>';
+                  eventFlag = true;
+                }
+                else if(($('#munth-select').val() === "all") && (currYear === $('#year-select').val())){
+    
+                    listType +=
+                      '<div class="event-list-item clearfix"><div class="event-image"><div class="post-date">';
+                    listType +=
+                      '<span class="date">' +
+                      extractDay(eventData.events[i].start.local) +
+                      '</span><br><small class="month">' +
+                      extractMonth(eventData.events[i].start.local, "MMM") +
+                      '</small></div><img src="' +
+                      eventData.events[i].logo.url +
+                      '" alt="Image_not_found">';
+                    listType +=
+                      '</div><div class="event-content"><div class="event-title mb-15"><h3 class="title">';
+                    listType +=
+                      "<strong>" + eventData.events[i].name.text + "</strong></h3>";
+                    listType +=
+                      '</div><p class="discription-text mb-30">' +
+                      text_truncate(
+                        removeLineBreaks(eventData.events[i].description.text),
+                        150
+                      ) +
+                      "</p>";
+                    listType += '<div class="event-info-list ul-li clearfix"><ul>';
+                    listType +=
+                      '<li><a href="' +
+                        eventData.events[i].url +
+                      '" target="_blank" class="tickets-details-btn">tickets & details</a></li></ul>';
+                    listType += "</div></div></div>";
+
+                    //holding data for grid type
+                    gridType +=
+                      '<div class="col-lg-6 col-md-6 col-sm-12"><div class="event-grid-item"><div class="event-image">';
+                    gridType +=
+                      '<div class="post-date"><span class="date">' +
+                      extractDay(eventData.events[i].start.local) +
+                      '</span><small class="month">' +
+                      extractMonth(eventData.events[i].start.local, "MMM") +
+                      "</small></div>";
+                    gridType +=
+                      '<img src="' +
+                      eventData.events[i].logo.url +
+                      '" alt="Image_not_found"></div><div class="event-content">';
+                    gridType +=
+                      '<div class="event-title mb-30"><h3 class="title">' +
+                        eventData.events[i].name.text +
+                      "</h3></div>";
+                    gridType += '<div class="event-post-meta ul-li-block mb-30"><ul>';
+                    gridType +=
+                      '<li><span class="icon"><i class="far fa-clock"></i></span>Start ' +
+                      extractTime(eventData.events[i].start.local) +
+                      "</li>";
+                    gridType += "</ul></div>";
+                    gridType +=
+                      '<a href="' +
+                      eventData.events[i].url +
+                      '" target="_blank" class="tickets-details-btn">tickets & details</a></div></div></div>';
+                    eventFlag = true;
+              }
+            }
+            if(!eventFlag){
+              listType = "No event available for this month";
+              gridType = "No event available for this month";
+            }
+            $("#list-style").html(listType);
+            $("#grid-style-container").html(gridType);
+          }
+        });
+
+        
         $.ajax({
           url: "api/getevents.php",
           type: "GET",
@@ -777,66 +936,170 @@
           success: function(as) {
             var listType = "",
               gridType = "";
-            eventData = as;
+            eventData = as, eventFlag = false;
             for (var i = 0; i < as.events.length; i++) {
+              categoryArr.push(as.events[i].subcategory_id);
               var isCurrDateAfter = moment().isAfter(moment(as.events[i].start.local));
+              
               if(!isCurrDateAfter){
-                //holding data for list type
-                listType +=
-                  '<div class="event-list-item clearfix"><div class="event-image"><div class="post-date">';
-                listType +=
-                  '<span class="date">' +
-                  extractDay(as.events[i].start.local) +
-                  '</span><br><small class="month">' +
-                  extractMonth(as.events[i].start.local) +
-                  '</small></div><img src="' +
-                  as.events[i].logo.url +
-                  '" alt="Image_not_found">';
-                listType +=
-                  '</div><div class="event-content"><div class="event-title mb-15"><h3 class="title">';
-                listType +=
-                  "<strong>" + as.events[i].name.text + "</strong></h3>";
-                listType +=
-                  '</div><p class="discription-text mb-30">' +
-                  text_truncate(
-                    removeLineBreaks(as.events[i].description.text),
-                    150
-                  ) +
-                  "</p>";
-                listType += '<div class="event-info-list ul-li clearfix"><ul>';
-                listType +=
-                  '<li><a href="' +
-                  as.events[i].url +
-                  '" target="_blank" class="tickets-details-btn">tickets & details</a></li></ul>';
-                listType += "</div></div></div>";
 
-                //holding data for grid type
-                gridType +=
-                  '<div class="col-lg-6 col-md-6 col-sm-12"><div class="event-grid-item"><div class="event-image">';
-                gridType +=
-                  '<div class="post-date"><span class="date">' +
-                  extractDay(as.events[i].start.local) +
-                  '</span><small class="month">' +
-                  extractMonth(as.events[i].start.local) +
-                  "</small></div>";
-                gridType +=
-                  '<img src="' +
-                  as.events[i].logo.url +
-                  '" alt="Image_not_found"></div><div class="event-content">';
-                gridType +=
-                  '<div class="event-title mb-30"><h3 class="title">' +
-                  as.events[i].name.text +
-                  "</h3></div>";
-                gridType += '<div class="event-post-meta ul-li-block mb-30"><ul>';
-                gridType +=
-                  '<li><span class="icon"><i class="far fa-clock"></i></span>Start ' +
-                  extractTime(as.events[i].start.local) +
-                  "</li>";
-                gridType += "</ul></div>";
-                gridType +=
-                  '<a href="' +
-                  as.events[i].url +
-                  '" target="_blank" class="tickets-details-btn">tickets & details</a></div></div></div>';
+                var currMonth = extractMonth(as.events[i].start.local, "MMMM"), currYear = extractYear(as.events[i].start.local);
+
+                if((currMonth === $('#munth-select').val()) && (currYear === $('#year-select').val())){
+                  //holding data for list type
+                  listType +=
+                    '<div class="event-list-item clearfix"><div class="event-image"><div class="post-date">';
+                  listType +=
+                    '<span class="date">' +
+                    extractDay(as.events[i].start.local) +
+                    '</span><br><small class="month">' +
+                    extractMonth(as.events[i].start.local, "MMM") +
+                    '</small></div><img src="' +
+                    as.events[i].logo.url +
+                    '" alt="Image_not_found">';
+                  listType +=
+                    '</div><div class="event-content"><div class="event-title mb-15"><h3 class="title">';
+                  listType +=
+                    "<strong>" + as.events[i].name.text + "</strong></h3>";
+                  listType +=
+                    '</div><p class="discription-text mb-30">' +
+                    text_truncate(
+                      removeLineBreaks(as.events[i].description.text),
+                      150
+                    ) +
+                    "</p>";
+                  listType += '<div class="event-info-list ul-li clearfix"><ul>';
+                  listType +=
+                    '<li><a href="' +
+                    as.events[i].url +
+                    '" target="_blank" class="tickets-details-btn">tickets & details</a></li></ul>';
+                  listType += "</div></div></div>";
+
+                  //holding data for grid type
+                  gridType +=
+                    '<div class="col-lg-6 col-md-6 col-sm-12"><div class="event-grid-item"><div class="event-image">';
+                  gridType +=
+                    '<div class="post-date"><span class="date">' +
+                    extractDay(as.events[i].start.local) +
+                    '</span><small class="month">' +
+                    extractMonth(as.events[i].start.local, "MMM") +
+                    "</small></div>";
+                  gridType +=
+                    '<img src="' +
+                    as.events[i].logo.url +
+                    '" alt="Image_not_found"></div><div class="event-content">';
+                  gridType +=
+                    '<div class="event-title mb-30"><h3 class="title">' +
+                    as.events[i].name.text +
+                    "</h3></div>";
+                  gridType += '<div class="event-post-meta ul-li-block mb-30"><ul>';
+                  gridType +=
+                    '<li><span class="icon"><i class="far fa-clock"></i></span>Start ' +
+                    extractTime(as.events[i].start.local) +
+                    "</li>";
+                  gridType += "</ul></div>";
+                  gridType +=
+                    '<a href="' +
+                    as.events[i].url +
+                    '" target="_blank" class="tickets-details-btn">tickets & details</a></div></div></div>';
+                  eventFlag = true;
+                }
+              }
+            }
+            if(!eventFlag){
+              listType = "No event available for this month";
+              gridType = "No event available for this month";
+            }
+            $("#list-style").html(listType);
+            $("#grid-style-container").html(gridType);
+            categoryArr = getUnique(categoryArr);
+             
+            var formData = new FormData();
+            formData.append('cat_arr', JSON.stringify(categoryArr));
+            $.ajax({
+              url: "api/getcategories.php",
+              type: "POST",
+              data: formData,
+              dataType: "json",
+              cache: false,
+              processData: false,
+              contentType: false,
+              success: function(as) {
+                var catList = "";
+                for(var i = 0; i < as.length; i++){
+                  catList += '<option value="'+as[i].id+'">'+as[i].name+'</option>';
+                }
+                $('#event-category-select').html(catList);
+              }
+            });
+
+          }
+        });
+
+        $('#search-event-btn').click(function(){
+          var listType = "",
+              gridType = "", eventFlag = false;
+          if(isNotEmpty(eventData)){
+            for (var i = 0; i < eventData.events.length; i++) {
+              var currMonth = extractMonth(eventData.events[i].start.local, "MMMM"), currYear = extractYear(eventData.events[i].start.local);
+              if(($('#event-category-select').val() === eventData.events[i].subcategory_id) && (currMonth === $('#munth-select').val()) && (currYear === $('#year-select').val())){
+                  //holding data for list type
+                listType +=
+                    '<div class="event-list-item clearfix"><div class="event-image"><div class="post-date">';
+                  listType +=
+                    '<span class="date">' +
+                    extractDay(eventData.events[i].start.local) +
+                    '</span><br><small class="month">' +
+                    extractMonth(eventData.events[i].start.local, "MMM") +
+                    '</small></div><img src="' +
+                    eventData.events[i].logo.url +
+                    '" alt="Image_not_found">';
+                  listType +=
+                    '</div><div class="event-content"><div class="event-title mb-15"><h3 class="title">';
+                  listType +=
+                    "<strong>" + eventData.events[i].name.text + "</strong></h3>";
+                  listType +=
+                    '</div><p class="discription-text mb-30">' +
+                    text_truncate(
+                      removeLineBreaks(eventData.events[i].description.text),
+                      150
+                    ) +
+                    "</p>";
+                  listType += '<div class="event-info-list ul-li clearfix"><ul>';
+                  listType +=
+                    '<li><a href="' +
+                      eventData.events[i].url +
+                    '" target="_blank" class="tickets-details-btn">tickets & details</a></li></ul>';
+                  listType += "</div></div></div>";
+
+                  //holding data for grid type
+                  gridType +=
+                    '<div class="col-lg-6 col-md-6 col-sm-12"><div class="event-grid-item"><div class="event-image">';
+                  gridType +=
+                    '<div class="post-date"><span class="date">' +
+                    extractDay(eventData.events[i].start.local) +
+                    '</span><small class="month">' +
+                    extractMonth(eventData.events[i].start.local, "MMM") +
+                    "</small></div>";
+                  gridType +=
+                    '<img src="' +
+                    eventData.events[i].logo.url +
+                    '" alt="Image_not_found"></div><div class="event-content">';
+                  gridType +=
+                    '<div class="event-title mb-30"><h3 class="title">' +
+                      eventData.events[i].name.text +
+                    "</h3></div>";
+                  gridType += '<div class="event-post-meta ul-li-block mb-30"><ul>';
+                  gridType +=
+                    '<li><span class="icon"><i class="far fa-clock"></i></span>Start ' +
+                    extractTime(eventData.events[i].start.local) +
+                    "</li>";
+                  gridType += "</ul></div>";
+                  gridType +=
+                    '<a href="' +
+                    eventData.events[i].url +
+                    '" target="_blank" class="tickets-details-btn">tickets & details</a></div></div></div>';
+                  eventFlag = true;
               }
             }
             $("#list-style").html(listType);
